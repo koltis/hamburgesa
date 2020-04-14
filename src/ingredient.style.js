@@ -6,6 +6,7 @@ import Beacon from './imgs/Beacon.png';
 import Mead from './imgs/Mead.png';
 export const Burger = styled.div`
   display: flex;
+  flex-direction: column;
   button {
     background: none;
     border: none;

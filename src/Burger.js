@@ -2,12 +2,12 @@ import React, { useRef } from 'react';
 import * as CS from './App.style';
 import { useDrag, useDrop } from 'react-dnd';
 import { ItemTypes } from './utils/items';
-
 export const Burger = ({
   ingredient,
   handleDelete,
   index,
   moveIngredients,
+  handleAdd,
 }) => {
   const ref = useRef(null);
   const [{ isDragging }, drag] = useDrag({
@@ -20,15 +20,24 @@ export const Burger = ({
       isDragging: !!monitor.isDragging(),
     }),
   });
+  let hoverIndex = 0;
   const [, drop] = useDrop({
-    accept: ItemTypes.PART,
+    accept: [ItemTypes.PART, ItemTypes.INGREDIENT],
+    drop(item, monitor) {
+      console.log(item);
+      if (item.type === 'part') {
+        return;
+      }
+
+      handleAdd(hoverIndex, item.name);
+    },
     hover(item, monitor) {
       if (!ref.current) {
         return;
       }
       const dragIndex = item.index;
-      const hoverIndex = index;
-      if (item.id == ingredient.id) {
+      hoverIndex = index;
+      if (item.id === ingredient.id) {
         return;
       }
       const hoverBoundingRect = ref.current.getBoundingClientRect();
@@ -50,19 +59,16 @@ export const Burger = ({
       if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
         return;
       }
-      moveIngredients(dragIndex, hoverIndex);
-      // Time to actually perform the action
-      // Note: we're mutating the monitor item here!
-      // Generally it's better to avoid mutations,
-      // but it's good here for the sake of performance
-      // to avoid expensive index searches.
-      item.index = hoverIndex;
+      if (item.type === 'part') {
+        moveIngredients(dragIndex, hoverIndex);
+        item.index = hoverIndex;
+      }
     },
   });
   drag(drop(ref));
   return (
     <CS.Burger ref={ref}>
-      <p style={{ background: 'white' }}>{ingredient.name}</p>
+      <div className={ingredient.name}></div>
       <button
         type="button"
         onClick={() => {

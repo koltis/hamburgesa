@@ -1,7 +1,6 @@
 import React from 'react';
 import { useDrag, useDrop } from 'react-dnd';
 import { ItemTypes } from './utils/items';
-
 export const Ingredient = ({ ingredient }) => {
   const [{ isDragging }, drag] = useDrag({
     item: {
@@ -14,5 +13,5 @@ export const Ingredient = ({ ingredient }) => {
     }),
   });
 
-  return <div ref={drag}>{ingredient.name}</div>;
+  return <div className={ingredient.name} ref={drag}></div>;
 };

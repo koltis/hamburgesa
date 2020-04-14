@@ -1,28 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import uniqid from 'uniqid';
 import { Burger } from './Burger';
-import { useDrop } from 'react-dnd';
-
-import { ItemTypes } from './utils/items';
+import * as CS from './Burger.style';
+import * as CSS from './ingredient.style';
 import { Ingredient } from './ingredient';
+import { css } from 'styled-components';
 export const DraggableComponent = () => {
   const [burger, setBurger] = useState([
-    { name: 'Bread', id: uniqid() },
+    { name: 'CloseBread', id: uniqid() },
     { name: 'Chess', id: uniqid() },
     { name: 'Beacon', id: uniqid() },
     { name: 'Mead', id: uniqid() },
-    { name: 'Bread', id: uniqid() },
+    { name: 'OpenBread', id: uniqid() },
   ]);
   const [ingredients, setIngredients] = useState([
-    { name: 'Chess', id: 0 },
-    { name: 'Meat', id: 1 },
-    { name: 'Bread', id: 2 },
-    { name: 'Beacon', id: 3 },
+    { name: 'CloseBread', id: 0 },
+    { name: 'Beacon', id: 1 },
+    { name: 'Chess', id: 2 },
+    { name: 'Mead', id: 3 },
+    { name: 'OpenBread', id: 4 },
   ]);
-  const handleAdd = (i) => {
-    console.log([{ name: i, id: uniqid() }, ...burger]);
+  const handleAdd = (index, name) => {
+    console.log(name);
     setBurger((prevBurger) => {
-      return [{ name: i, id: uniqid() }, ...prevBurger];
+      console.log(index);
+      const clonePrevBurger = [...prevBurger];
+      clonePrevBurger.splice(index, 0, { name: name, id: uniqid() });
+      return clonePrevBurger;
     });
   };
 
@@ -34,7 +38,7 @@ export const DraggableComponent = () => {
     );
   };
 
-  const moveIngredients = (dragIndex, dropIndex) => {
+  const moveIngredients = useCallback((dragIndex, dropIndex) => {
     setBurger((prevBurger) => {
       const clonedPrevState = [...prevBurger];
       [clonedPrevState[dragIndex], clonedPrevState[dropIndex]] = [
@@ -44,23 +48,13 @@ export const DraggableComponent = () => {
 
       return clonedPrevState;
     });
-  };
-
-  const [{ isOver }, drop] = useDrop({
-    accept: ItemTypes.INGREDIENT,
-    drop: (item, monitor) => {
-      if (item.type === ItemTypes.INGREDIENT) {
-        handleAdd(item.name);
-      }
-    },
-    collect: (monitor) => ({}),
   });
   return (
-    <>
+    <CS.draggableComponent>
       <div>
-        <h1>Generador de amburgesas :V</h1>
+        <h1>Generador de hamburgesas :V</h1>
       </div>
-      <div className="burger" ref={drop} style={{ background: 'red' }}>
+      <div className="burger">
         {burger.map((ingredient, index) => {
           return (
             <Burger
@@ -69,15 +63,21 @@ export const DraggableComponent = () => {
               index={index}
               handleDelete={handleDelete}
               moveIngredients={moveIngredients}
+              handleAdd={handleAdd}
             ></Burger>
           );
         })}
       </div>
-      {ingredients.map((ingredient) => {
-        return (
-          <Ingredient key={ingredient.id} ingredient={ingredient}></Ingredient>
-        );
-      })}
-    </>
+      <CSS.Burger>
+        {ingredients.map((ingredient) => {
+          return (
+            <Ingredient
+              key={ingredient.id}
+              ingredient={ingredient}
+            ></Ingredient>
+          );
+        })}
+      </CSS.Burger>
+    </CS.draggableComponent>
   );
 };
